@@ -3,11 +3,12 @@ package helper
 import (
 	"encoding/json"
 	"fmt"
-	"math/rand"
-    "os"
-	"time"
 	"github.com/twilio/twilio-go"
 	twilioApi "github.com/twilio/twilio-go/rest/api/v2010"
+	"github.com/twilio/twilio-go/twiml"
+	"math/rand"
+	"os"
+	"time"
 )
 
 func Call(phoneNumber string) (string, error) {
@@ -28,14 +29,22 @@ func Call(phoneNumber string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	response, _ := json.Marshal(*resp)
 	return string(response), nil
 }
 
-func playTwiml()string{
-	twiml := `<Response><Play>%s</Play></Response>`
-	return fmt.Sprintf(twiml, randomAudioClip())
+func playTwiml() string {
+	play := &twiml.VoicePlay{
+		Url: randomAudioClip(),
+	}
+
+	verbList := []twiml.Element{play}
+	playTwiml, err := twiml.Voice(verbList)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return playTwiml
 }
 
 func randomAudioClip() string {
